@@ -20,7 +20,7 @@ from pamqp.constants import REPLY_SUCCESS
 from pamqp.exceptions import AMQPFrameError
 from pamqp.header import ContentHeader
 
-from aiormq.tools import Countdown, awaitable
+from aiormq.tools import Countdown
 
 from .abc import (
     AbstractChannel, AbstractConnection, ArgumentsType, ChannelFrame,
@@ -401,7 +401,7 @@ class Channel(Base, AbstractChannel):
             frame.reply_code or -1,
             frame.reply_text or "",
             frame.class_id or -1,
-            frame.method_id or -1
+            frame.method_id or -1,
         )
         self.write_queue.put_nowait(
             ChannelFrame.marshall(
@@ -524,7 +524,7 @@ class Channel(Base, AbstractChannel):
         if consumer_tag in self.consumers:
             raise DuplicateConsumerTag(self.number)
 
-        self.consumers[consumer_tag] = awaitable(consumer_callback)
+        self.consumers[consumer_tag] = consumer_callback
 
         return await self.rpc(
             spec.Basic.Consume(
