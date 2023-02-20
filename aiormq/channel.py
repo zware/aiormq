@@ -397,6 +397,12 @@ class Channel(Base, AbstractChannel):
 
     async def _on_close_frame(self, frame: spec.Channel.Close) -> None:
         exc: BaseException = exception_by_code(frame)
+        self.set_close_reason(
+            frame.reply_code or -1,
+            frame.reply_text or "",
+            frame.class_id or -1,
+            frame.method_id or -1
+        )
         self.write_queue.put_nowait(
             ChannelFrame.marshall(
                 channel_number=self.number,
